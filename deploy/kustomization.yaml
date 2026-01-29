@@ -1,3 +1,4 @@
+---
 # SPDX-License-Identifier: Apache-2.0
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
@@ -5,11 +6,11 @@ kind: Kustomization
 namespace: openshift-filesystem-mcp
 
 resources:
-- namespace.yaml
-- serviceaccount.yaml
-- deployment.yaml
-- service.yaml
-- route.yaml
+  - namespace.yaml
+  - serviceaccount.yaml
+  - deployment.yaml
+  - service.yaml
+  - route.yaml
 
 labels:
   - pairs:
@@ -20,4 +21,4 @@ labels:
 
 # Image is set at deploy time via make deploy (uses IMG / QUAY_WORKSPACE)
 images:
-- name: quay.io/REPLACE_WITH_YOUR_USERNAME/openshift-filesystem-mcp
+  - name: quay.io/REPLACE_WITH_YOUR_USERNAME/openshift-filesystem-mcp
