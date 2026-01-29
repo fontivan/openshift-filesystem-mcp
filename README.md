@@ -108,7 +108,7 @@ make container-build container-push deploy IMG=quay.io/myuser/openshift-filesyst
 
 ## Verifying local deployment
 
-After running `make deploy-local-dirs` and `make deploy-local`, the MCP server listens at **http://localhost:8080**. Use these steps to confirm it is working.
+After running `make deploy-local-dirs` and `make deploy-local`, the MCP server listens at **<http://localhost:8080>**. Use these steps to confirm it is working.
 
 ### 1. Check the container is running
 
@@ -140,7 +140,7 @@ curl -s -i http://localhost:8080/sse
 
 ### 3. Use an MCP client to list and read files
 
-Configure your MCP client with the server URL **http://localhost:8080** (or **http://localhost:8080/sse** if the client expects an SSE path). Then use the client’s filesystem tools to:
+Configure your MCP client with the server URL **<http://localhost:8080>** (or **<http://localhost:8080/sse>** if the client expects an SSE path). Then use the client’s filesystem tools to:
 
 - **List directories**: e.g. `/host/proc`, `/host/sys`, `/host/etc`
 - **Read files**: e.g. `/host/proc/version`, `/host/proc/cpuinfo`, `/host/sys/kernel/version`
@@ -192,7 +192,7 @@ Create or edit `.cursor/mcp.json` in this project:
 }
 ```
 
-Cursor loads project MCP config from `.cursor/mcp.json`. Use **http://localhost:8080/sse** for SSE or **http://localhost:8080/mcp** for Streamable HTTP. The server must be running (`make deploy-local`) when you use it.
+Cursor loads project MCP config from `.cursor/mcp.json`. Use **<http://localhost:8080/sse>** for SSE or **<http://localhost:8080/mcp>** for Streamable HTTP. The server must be running (`make deploy-local`) when you use it.
 
 ### Using the server in chat
 
