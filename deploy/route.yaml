@@ -1,0 +1,22 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# OpenShift Route for external access to the MCP server (HTTP/SSE).
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: openshift-filesystem-mcp
+  namespace: openshift-filesystem-mcp
+  labels:
+    app.kubernetes.io/name: openshift-filesystem-mcp
+    app.kubernetes.io/component: server
+spec:
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+  to:
+    kind: Service
+    name: openshift-filesystem-mcp
+    weight: 100
+  wildcardPolicy: None

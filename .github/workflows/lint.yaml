@@ -1,0 +1,25 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Run make lint (yamllint, hadolint, mdlint) on push to main and on PRs targeting main.
+name: Lint
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run lint
+        run: make lint

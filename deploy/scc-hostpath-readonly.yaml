@@ -1,0 +1,45 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Custom SCC for read-only host path mounts. Similar to OpenShift's hostmount-anyuid
+# but requires readOnlyRootFilesystem: true so pods cannot write to the container
+# root filesystem. Host path mounts must still use volumeMount.readOnly: true in
+# the pod spec for read-only access to the host.
+#
+# Apply once (cluster-scoped): kubectl apply -f deploy/scc-hostpath-readonly.yaml
+# Then grant to the ServiceAccount: make grant-scc
+#
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: hostpath-readonly
+  annotations:
+    description: "Allows hostPath volumes (e.g. for read-only host /etc, /sys, /proc). Requires read-only root filesystem. Do not use for workloads that need to write to the host."
+allowHostDirVolumePlugin: true
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegedContainer: false
+allowPrivilegeEscalation: false
+readOnlyRootFilesystem: true
+requiredDropCapabilities:
+  - ALL
+defaultAllowPrivilegeEscalation: false
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: MustRunAs
+fsGroup:
+  type: RunAsAny
+supplementalGroups:
+  type: RunAsAny
+volumes:
+  - configMap
+  - downwardAPI
+  - emptyDir
+  - hostPath
+  - persistentVolumeClaim
+  - projected
+  - secret
+users: []
+groups: []

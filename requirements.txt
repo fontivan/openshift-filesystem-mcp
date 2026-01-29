@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+# Linters
+yamllint==1.35.0
+hadolint-bin==2.14.0
+pymarkdownlnt==0.9.25
