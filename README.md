@@ -8,14 +8,14 @@ Model Context Protocol (MCP) server that exposes **read-only** access to OpenShi
 
 - **MCP server**: [@modelcontextprotocol/server-filesystem](https://github.com/modelcontextprotocol/servers) runs inside a container with host paths mounted at `/host/etc`, `/host/sys`, `/host/proc`.
 - **Transport**: [mcp-proxy](https://www.npmjs.com/package/mcp-proxy) bridges the stdio-based MCP server to HTTP/SSE so it can be reached via an OpenShift Route.
-- **Image**: Red Hat UBI9 Node.js 22; built from the included Dockerfile.
+- **Image**: Red Hat UBI9 Node.js 22; built from the included Containerfile.
 
 ## Prerequisites
 
 - OpenShift cluster (or Kubernetes with host path mounts and appropriate security context).
 - `kubectl` and `oc` in your path.
 - Container tool: **podman** (default) or **docker**.
-- For building from the Dockerfile: access to `registry.redhat.io` (e.g. via OpenShift pull-secret; see [Registry credentials](#registry-credentials)).
+- For building from the Containerfile: access to `registry.redhat.io` (e.g. via OpenShift pull-secret; see [Registry credentials](#registry-credentials)).
 
 ## Quick Start
 
@@ -83,7 +83,7 @@ mcpServers:
 | `setup-registry-credentials` | Create `registry-credentials` from cluster pull-secret (for UBI base image) |
 | `lint` | Run all linters (yamllint, hadolint, mdlint) |
 | `yamllint` | Lint YAML files (config: `.yamllint.yaml`) |
-| `hadolint` | Lint the Dockerfile |
+| `hadolint` | Lint the Containerfile |
 | `mdlint` | Lint Markdown files (config: `.pymarkdownlnt.json`) |
 | `help` | Show all targets and variables |
 
@@ -218,7 +218,7 @@ Config: [`.github/workflows/lint.yaml`](.github/workflows/lint.yaml), [`.github/
 
 ## Registry credentials
 
-The Dockerfile uses `registry.redhat.io/ubi9/nodejs-22`. If your cluster can pull that image via the global pull-secret, no extra step is needed. Otherwise, create a secret in the deployment namespace from the OpenShift pull-secret and configure the deployment to use it:
+The Containerfile uses `registry.redhat.io/ubi9/nodejs-22`. If your cluster can pull that image via the global pull-secret, no extra step is needed. Otherwise, create a secret in the deployment namespace from the OpenShift pull-secret and configure the deployment to use it:
 
 ```bash
 make setup-registry-credentials
@@ -241,7 +241,7 @@ Then ensure the Deployment’s `imagePullSecrets` (or default service account) r
 │   └── container-build.yaml   # CI: make container-build on push/PR to main
 ├── .pymarkdownlnt.json        # Markdown linter config
 ├── .yamllint.yaml             # YAML linter config
-├── Dockerfile                 # UBI9 Node.js 22 + mcp-proxy + server-filesystem
+├── Containerfile              # UBI9 Node.js 22 + mcp-proxy + server-filesystem
 ├── Makefile                   # Build, push, deploy, lint, apply-scc, grant-scc, help
 ├── README.md
 ├── requirements.txt           # Linter deps (yamllint, hadolint, pymarkdownlnt)

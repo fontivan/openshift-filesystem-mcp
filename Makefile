@@ -12,7 +12,7 @@ export PY ?= python3
 export VENV := $(ROOT_DIR)/venv
 export BIN := $(VENV)/bin
 
-# Image settings (built from Dockerfile)
+# Image settings (built from Containerfile)
 # Override QUAY_WORKSPACE to push to a different Quay org/user (default: $USER)
 QUAY_WORKSPACE ?= $(USER)
 IMG ?= quay.io/$(QUAY_WORKSPACE)/openshift-filesystem-mcp:$(VERSION)
@@ -31,9 +31,10 @@ LOCAL_MCP_HOST_DIR := $(ROOT_DIR)/.local-mcp-host
 .PHONY: container-build container-push deploy undeploy deploy-local deploy-local-dirs undeploy-local apply-scc grant-scc setup-registry-credentials help
 .PHONY: venv yamllint hadolint mdlint lint clean
 
-## container-build: Build container image (Dockerfile uses UBI9 nodejs-22 + mcp-proxy)
+## container-build: Build container image (Containerfile uses UBI9 nodejs-22 + mcp-proxy)
 container-build:
 	$(CONTAINER_ENGINE) build \
+		-f $(ROOT_DIR)/Containerfile \
 		--platform $(PLATFORM) \
 		-t $(IMG) .
 
@@ -129,9 +130,9 @@ lint: yamllint hadolint mdlint
 yamllint: venv
 	$(BIN)/yamllint -c $(ROOT_DIR)/.yamllint.yaml .
 
-## hadolint: Lint Dockerfile
+## hadolint: Lint Containerfile
 hadolint: venv
-	$(BIN)/hadolint $(ROOT_DIR)/Dockerfile
+	$(BIN)/hadolint $(ROOT_DIR)/Containerfile
 
 ## mdlint: Lint Markdown files (config: .pymarkdownlnt.json, MD013 disabled)
 mdlint: venv

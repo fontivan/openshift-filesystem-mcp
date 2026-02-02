@@ -28,7 +28,7 @@ spec:
         runAsUser: 1001
       containers:
         - name: openshift-filesystem-mcp
-          # Image replaced by kustomize on 'make deploy IMG=...' (build from Dockerfile).
+          # Image replaced by kustomize on 'make deploy IMG=...' (build from Containerfile).
           image: quay.io/REPLACE_WITH_YOUR_USERNAME/openshift-filesystem-mcp:latest
           imagePullPolicy: IfNotPresent
           securityContext:
