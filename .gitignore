@@ -4,3 +4,4 @@
 venv/
 .local-mcp-host/
 .build/
+node_modules/
