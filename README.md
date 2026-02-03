@@ -17,7 +17,7 @@ Model Context Protocol (MCP) server that exposes **read-only** access to OpenShi
 - OpenShift cluster (or Kubernetes with host path mounts and appropriate security context).
 - `kubectl` and `oc` in your path.
 - Container tool: **podman** (default) or **docker**.
-- For building from the Containerfile: access to `registry.access.redhat.com` (UBI base images; see [Registry credentials](#registry-credentials) if pull fails).
+- For building from the Containerfiles: access to `registry.access.redhat.com` (UBI base images; see [Registry credentials](#registry-credentials) if pull fails).
 
 ## Quick Start
 
@@ -122,7 +122,7 @@ podman ps
 docker ps
 ```
 
-You should see one running container with port `8080` mapped (look for `openshift-filesystem-mcp` or your `IMG` name).
+You should see one running container with port `8080` mapped (look for `openshift-filesystem-mcp` or your `IMG_BACKEND` name).
 
 ### 2. Check the HTTP endpoint responds
 
@@ -213,7 +213,7 @@ Two workflows run on every **push to `main`** and on every **pull request target
 | Workflow | Description |
 |----------|-------------|
 | **Lint** | Runs `make lint` (yamllint, hadolint, mdlint). Uses a Python venv and dependencies from `requirements.txt`. |
-| **Container build** | Runs `make container-build` with Docker to verify the image builds. Does not push to a registry. |
+| **Container build** | Runs `make container-build` with Docker to verify both images (backend + proxy) build. Does not push to a registry. |
 
 Config: [`.github/workflows/lint.yaml`](.github/workflows/lint.yaml), [`.github/workflows/container-build.yaml`](.github/workflows/container-build.yaml).
 
@@ -229,9 +229,9 @@ Then ensure the Deployment’s `imagePullSecrets` (or default service account) r
 
 ## Security
 
-- **No write access to the host.** Host paths are mounted **read-only** (`readOnly: true`). The pod runs as non-root (`runAsUser: 1001`) with a read-only root filesystem; the only writable area is an in-memory `/tmp` (emptyDir). The proxy **hides write/edit tools** (`write_file`, `edit_file`, `create_directory`, `move_file`) from clients so they are not exposed. Set `MCP_EXPOSE_WRITE_TOOLS=true` to expose them (e.g. for local testing with writable dirs).
-- The deployment uses a custom **hostpath-readonly** SCC (see `deploy/scc-hostpath-readonly.yaml`), which allows hostPath volumes but requires read-only root filesystem; only this ServiceAccount is granted that SCC. Restrict who can create or use this deployment and namespace.
-- The Route uses edge TLS; treat the MCP endpoint as sensitive and limit access (network policies, auth, or cluster visibility) as appropriate for your environment.
+- **No write access to the host.** Host paths are mounted **read-only** (`readOnly: true`). Both containers use a read-only root filesystem; the only writable area is an in-memory `/tmp` (emptyDir). The **backend** runs as root (`runAsUser: 0`) with `seLinuxOptions.type: spc_t` so it can read host paths under SELinux; the **proxy** runs as non-root (`runAsUser: 1001`) and does not mount host paths. The proxy **hides write/edit tools** (`write_file`, `edit_file`, `create_directory`, `move_file`) from clients so they are not exposed. Set `MCP_EXPOSE_WRITE_TOOLS=true` to expose them (e.g. for local testing with writable dirs).
+- The deployment uses a custom **hostpath-readonly** SCC (see `deploy/scc-hostpath-readonly.yaml`), which allows hostPath volumes but requires read-only root filesystem. The SCC uses `runAsUser: RunAsAny` and `seLinuxContext: RunAsAny` so the backend can run as root and set `spc_t` for host path access; only the openshift-filesystem-mcp ServiceAccount is granted that SCC. Restrict who can create or use this deployment and namespace.
+- The pod sets `seccompProfile.type: RuntimeDefault`. The Route uses edge TLS; treat the MCP endpoint as sensitive and limit access (network policies, auth, or cluster visibility) as appropriate for your environment.
 
 ## Tool description overrides
 
@@ -245,12 +245,16 @@ The proxy image includes `proxy/tools.yaml` with OpenShift-specific descriptions
 
 ```text
 .
-├── backend/                   # Node.js backend container
-│   ├── Containerfile
-│   └── .containerignore
-├── proxy/              # MCP proxy with transforms
+├── backend/                   # Node.js backend container (mcp-proxy + server-filesystem)
 │   ├── Containerfile
 │   ├── .containerignore
+│   ├── Makefile
+│   ├── package.json
+│   └── package-lock.json
+├── proxy/                     # MCP proxy with transforms (FastMCP, YAML tool overrides)
+│   ├── Containerfile
+│   ├── .containerignore
+│   ├── Makefile
 │   ├── server.py
 │   ├── requirements.txt
 │   └── tools.yaml              # Tool config: descriptions, renames (baked into proxy image)
