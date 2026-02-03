@@ -5,5 +5,8 @@ rules:
   line-length: disable
 
 ignore:
-  - venv/
   - .build/
+  - .local-mcp-host/
+  - backend/node_modules/
+  - proxy/venv/
+  - venv/

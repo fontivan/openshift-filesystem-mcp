@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Backend has no source to copy; ignore all (build context is backend/)
+*
+!Containerfile
+!package.json
+!package-lock.json

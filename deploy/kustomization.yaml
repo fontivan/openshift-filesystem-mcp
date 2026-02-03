@@ -19,6 +19,7 @@ labels:
     includeSelectors: true
     includeTemplates: true
 
-# Image is set at deploy time via make deploy (uses IMG / QUAY_WORKSPACE)
+# Images set at deploy time via make deploy (IMG_BACKEND, IMG_PROXY)
 images:
-  - name: quay.io/REPLACE_WITH_YOUR_USERNAME/openshift-filesystem-mcp
+  - name: quay.io/REPLACE_WITH_YOUR_USERNAME/openshift-filesystem-mcp-backend
+  - name: quay.io/REPLACE_WITH_YOUR_USERNAME/openshift-filesystem-mcp-proxy

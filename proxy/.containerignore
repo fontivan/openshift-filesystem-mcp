@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Proxy: deny all, allow only files needed for build (build context is proxy/)
+*
+!Containerfile
+!requirements.txt
+!server.py
+!tools.yaml

@@ -4,6 +4,8 @@
 # but requires readOnlyRootFilesystem: true so pods cannot write to the container
 # root filesystem. Host path mounts must still use volumeMount.readOnly: true in
 # the pod spec for read-only access to the host.
+# seLinuxContext RunAsAny allows the deployment to set seLinuxOptions (e.g. spc_t)
+# on the backend container so it can read host paths under SELinux.
 #
 # Apply once (cluster-scoped): kubectl apply -f deploy/scc-hostpath-readonly.yaml
 # Then grant to the ServiceAccount: make grant-scc
@@ -13,7 +15,7 @@ kind: SecurityContextConstraints
 metadata:
   name: hostpath-readonly
   annotations:
-    description: "Allows hostPath volumes (e.g. for read-only host /etc, /sys, /proc). Requires read-only root filesystem. Do not use for workloads that need to write to the host."
+    description: "Allows hostPath volumes (e.g. for read-only host /etc, /sys, /proc, /usr). Requires read-only root filesystem. Do not use for workloads that need to write to the host."
 allowHostDirVolumePlugin: true
 allowHostIPC: false
 allowHostNetwork: false
@@ -28,7 +30,7 @@ defaultAllowPrivilegeEscalation: false
 runAsUser:
   type: RunAsAny
 seLinuxContext:
-  type: MustRunAs
+  type: RunAsAny
 fsGroup:
   type: RunAsAny
 supplementalGroups:

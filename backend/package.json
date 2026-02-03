@@ -1,0 +1,10 @@
+{
+  "name": "openshift-filesystem-mcp-backend",
+  "version": "1.0.0",
+  "description": "MCP server-filesystem backend (mcp-proxy + stdio)",
+  "private": true,
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "^2026.1.14",
+    "mcp-proxy": "^6.4.0"
+  }
+}

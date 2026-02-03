@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# MCP proxy with transforms: tool descriptions + write-tool visibility.
+# Proxies to Node.js backend (port 8081). Listens on 8080 for clients.
+
+FROM registry.access.redhat.com/ubi9/python-312:latest@sha256:7a5af0831851a34daf12fd706aed9a5b4f54ef1ae2826a932403b85a9e290c14
+
+ENV SUMMARY="MCP proxy with transforms" \
+    DESCRIPTION="MCP proxy applying tool description overrides and write-tool visibility. Proxies to Node.js backend."
+
+LABEL name="openshift-filesystem-mcp-proxy" \
+      summary="${SUMMARY}" \
+      description="${DESCRIPTION}" \
+      io.k8s.display-name="openshift-filesystem-mcp-proxy" \
+      io.k8s.description="${DESCRIPTION}" \
+      io.openshift.tags="mcp,filesystem,python,proxy"
+
+# Install fastmcp (transforms) + PyYAML
+COPY --chown=1001:0 requirements.txt /opt/app/requirements.txt
+WORKDIR /opt/app
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy server and tool descriptions YAML
+COPY --chown=1001:0 server.py /opt/app/server.py
+COPY --chown=1001:0 tools.yaml /opt/app/tools.yaml
+
+ENV PORT=8080
+ENV MCP_BACKEND_URL=http://127.0.0.1:8081/mcp
+ENV MCP_TOOL_DESCRIPTIONS_FILE=/opt/app/tools.yaml
+EXPOSE 8080
+
+WORKDIR /opt/app
+ENTRYPOINT ["python", "server.py"]

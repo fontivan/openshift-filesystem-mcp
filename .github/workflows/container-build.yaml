@@ -16,5 +16,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build container image
-        run: make container-build CONTAINER_ENGINE=docker IMG=openshift-filesystem-mcp:ci
+      - name: Build container images
+        run: make container-build CONTAINER_ENGINE=docker VERSION=ci

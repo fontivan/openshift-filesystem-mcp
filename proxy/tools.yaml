@@ -1,0 +1,36 @@
+---
+# SPDX-License-Identifier: Apache-2.0
+# Tool description overrides for the OpenShift filesystem MCP proxy.
+# Based on upstream @modelcontextprotocol/server-filesystem descriptions:
+# https://github.com/modelcontextprotocol/servers/blob/main/src/filesystem/index.ts
+#
+# Used by default (MCP_TOOL_DESCRIPTIONS_FILE env overrides path if needed).
+# Omitted tools use the upstream server-filesystem description.
+# Note: write_file, edit_file, create_directory, move_file are not exposed
+# (OpenShift host paths are read-only).
+#
+# Optional fields per tool:
+#   name:     Backend tool name (required, used to match the upstream tool).
+#   rename:   New name to expose through the proxy (optional).
+#   description: Override the tool description (optional).
+tools:
+  - name: read_file
+    rename: read_file_openshift_host
+  - name: read_text_file
+    rename: read_text_file_openshift_host
+  - name: read_media_file
+    rename: read_media_file_openshift_host
+  - name: read_multiple_files
+    rename: read_multiple_files_openshift_host
+  - name: list_directory
+    rename: list_directory_openshift_host
+  - name: list_directory_with_sizes
+    rename: list_directory_with_sizes_openshift_host
+  - name: directory_tree
+    rename: directory_tree_openshift_host
+  - name: search_files
+    rename: search_files_openshift_host
+  - name: get_file_info
+    rename: get_file_info_openshift_host
+  - name: list_allowed_directories
+    rename: list_allowed_directories_openshift_host
