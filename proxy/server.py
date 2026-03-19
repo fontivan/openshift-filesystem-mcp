@@ -5,6 +5,7 @@
 
 import os
 from pathlib import Path
+from typing import cast
 
 from fastmcp import FastMCP
 from fastmcp.server import create_proxy
@@ -15,9 +16,31 @@ import yaml
 WRITE_TOOLS = {"write_file", "edit_file", "create_directory", "move_file"}
 
 
-def load_tool_config() -> dict[str, ToolTransformConfig]:
-    """Load tool descriptions from YAML and build ToolTransformConfig."""
-    config: dict[str, ToolTransformConfig] = {}
+def _tool_config_apply(
+    tool: object,
+    kwargs: dict[str, object],
+    description_append: str | None,
+) -> object:
+    """Build effective description (optionally appending) and apply ToolTransformConfig."""
+    if description_append is not None:
+        base = kwargs.get("description")
+        if base is None and hasattr(tool, "description"):
+            base = getattr(tool, "description") or ""
+        else:
+            base = base or ""
+        kwargs = {**kwargs, "description": base + description_append}
+    transform = ToolTransformConfig(**kwargs)
+    return transform.apply(tool)
+
+
+def load_tool_config() -> dict[str, object]:
+    """Load tool descriptions from YAML and build ToolTransformConfig (or append wrapper).
+
+    YAML may specify:
+      description: full replacement of the tool description.
+      description_append: text to append to the description (original or overridden).
+    """
+    config: dict[str, object] = {}
     path = os.environ.get("MCP_TOOL_DESCRIPTIONS_FILE")
     if path and Path(path).exists():
         try:
@@ -30,11 +53,35 @@ def load_tool_config() -> dict[str, ToolTransformConfig]:
                         kwargs["description"] = entry["description"]
                     if "rename" in entry:
                         kwargs["name"] = entry["rename"]
-                    config[entry["name"]] = ToolTransformConfig(**kwargs)
+                    if "description_append" in entry:
+                        config[entry["name"]] = _ConfigWithAppend(
+                            kwargs=kwargs,
+                            description_append=str(entry["description_append"]),
+                        )
+                    else:
+                        config[entry["name"]] = ToolTransformConfig(**kwargs)
         except (yaml.YAMLError, OSError) as e:
             print(f"Warning: failed to load tool descriptions from {path}: {e}")
 
     return config
+
+
+class _ConfigWithAppend:
+    """Wrapper that applies description_append at apply-time and delegates to ToolTransformConfig."""
+
+    def __init__(self, *, kwargs: dict[str, object], description_append: str) -> None:
+        self.kwargs = kwargs
+        self.description_append = description_append
+
+    @property
+    def name(self) -> str | None:
+        """Expose optional rename for ToolTransform's reverse name mapping."""
+        return cast("str | None", self.kwargs.get("name"))
+
+    def apply(self, tool: object) -> object:
+        return _tool_config_apply(
+            tool, kwargs=dict(self.kwargs), description_append=self.description_append
+        )
 
 
 def main() -> None:

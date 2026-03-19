@@ -13,11 +13,15 @@
 #   name:     Backend tool name (required, used to match the upstream tool).
 #   rename:   New name to expose through the proxy (optional).
 #   description: Override the tool description (optional).
+#   description_append: Text to append to the description (optional). If both
+#     description and description_append are set, the append is added to the
+#     overridden description; otherwise it is appended to the original.
 tools:
   - name: read_file
     rename: read_file_openshift_host
   - name: read_text_file
     rename: read_text_file_openshift_host
+    description_append: " Prepend '/host' to the usual Linux directory path."
   - name: read_media_file
     rename: read_media_file_openshift_host
   - name: read_multiple_files
